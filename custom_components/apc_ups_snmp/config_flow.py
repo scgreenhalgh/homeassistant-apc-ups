@@ -10,6 +10,11 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .const import (
     AUTH_PROTOCOLS,
@@ -152,9 +157,19 @@ class ApcUpsSnmpConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_USERNAME): str,
-                    vol.Optional(CONF_AUTH_PROTOCOL): vol.In(AUTH_PROTOCOLS),
+                    vol.Optional(CONF_AUTH_PROTOCOL): SelectSelector(
+                        SelectSelectorConfig(
+                            options=AUTH_PROTOCOLS,
+                            mode=SelectSelectorMode.DROPDOWN,
+                        )
+                    ),
                     vol.Optional(CONF_AUTH_PASSWORD): str,
-                    vol.Optional(CONF_PRIV_PROTOCOL): vol.In(PRIV_PROTOCOLS),
+                    vol.Optional(CONF_PRIV_PROTOCOL): SelectSelector(
+                        SelectSelectorConfig(
+                            options=PRIV_PROTOCOLS,
+                            mode=SelectSelectorMode.DROPDOWN,
+                        )
+                    ),
                     vol.Optional(CONF_PRIV_PASSWORD): str,
                 }
             ),
