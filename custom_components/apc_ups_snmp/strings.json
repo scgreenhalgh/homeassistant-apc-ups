@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to APC UPS",
+        "description": "Enter the connection details for your APC UPS with Network Management Card.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "snmp_version": "SNMP Version"
+        }
+      },
+      "auth_v2c": {
+        "title": "SNMP v2c Authentication",
+        "description": "Enter the community string for SNMP v2c authentication.",
+        "data": {
+          "community": "Community String"
+        }
+      },
+      "auth_v3": {
+        "title": "SNMP v3 Authentication",
+        "description": "Enter the credentials for SNMP v3 authentication.",
+        "data": {
+          "username": "Username",
+          "auth_protocol": "Authentication Protocol",
+          "auth_password": "Authentication Password",
+          "priv_protocol": "Privacy Protocol",
+          "priv_password": "Privacy Password"
+        }
+      },
+      "sensors": {
+        "title": "Select Sensors",
+        "description": "Select which sensors to enable for {model} (Serial: {serial}).",
+        "data": {
+          "sensors": "Sensors"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the UPS. Check the host and port.",
+      "invalid_auth": "Authentication failed. Check your credentials.",
+      "timeout": "Connection timed out. The UPS may be unreachable.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This UPS is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "APC UPS Options",
+        "description": "Configure which sensors to enable.",
+        "data": {
+          "sensors": "Sensors"
+        }
+      }
+    }
+  }
+}
