@@ -11,9 +11,13 @@ from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.selector import (
+    SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
 )
 
 from .const import (
@@ -152,25 +156,39 @@ class ApcUpsSnmpConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_sensors()
 
+        # Build options for selectors
+        auth_options = [
+            SelectOptionDict(value=proto, label=proto) for proto in AUTH_PROTOCOLS
+        ]
+        priv_options = [
+            SelectOptionDict(value=proto, label=proto) for proto in PRIV_PROTOCOLS
+        ]
+
         return self.async_show_form(
             step_id="auth_v3",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_USERNAME): str,
+                    vol.Required(CONF_USERNAME): TextSelector(
+                        TextSelectorConfig(type=TextSelectorType.TEXT)
+                    ),
                     vol.Optional(CONF_AUTH_PROTOCOL): SelectSelector(
                         SelectSelectorConfig(
-                            options=AUTH_PROTOCOLS,
+                            options=auth_options,
                             mode=SelectSelectorMode.DROPDOWN,
                         )
                     ),
-                    vol.Optional(CONF_AUTH_PASSWORD): str,
+                    vol.Optional(CONF_AUTH_PASSWORD): TextSelector(
+                        TextSelectorConfig(type=TextSelectorType.PASSWORD)
+                    ),
                     vol.Optional(CONF_PRIV_PROTOCOL): SelectSelector(
                         SelectSelectorConfig(
-                            options=PRIV_PROTOCOLS,
+                            options=priv_options,
                             mode=SelectSelectorMode.DROPDOWN,
                         )
                     ),
-                    vol.Optional(CONF_PRIV_PASSWORD): str,
+                    vol.Optional(CONF_PRIV_PASSWORD): TextSelector(
+                        TextSelectorConfig(type=TextSelectorType.PASSWORD)
+                    ),
                 }
             ),
             errors=errors,
