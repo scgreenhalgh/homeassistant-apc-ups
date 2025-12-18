@@ -1,12 +1,12 @@
 {
   "domain": "apc_ups_snmp",
   "name": "APC UPS (SNMP)",
-  "codeowners": [],
+  "codeowners": ["@scgreenhalgh"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/seangreenhalgh/ha_apc_ups_integration",
+  "documentation": "https://github.com/scgreenhalgh/homeassistant-apc-ups",
   "integration_type": "hub",
   "iot_class": "local_polling",
   "requirements": ["pysnmp>=7.0,<8.0"],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
