@@ -14,7 +14,6 @@ from homeassistant.helpers.selector import (
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
-    SelectSelectorMode,
     TextSelector,
     TextSelectorConfig,
     TextSelectorType,
@@ -174,7 +173,7 @@ class ApcUpsSnmpConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional(CONF_AUTH_PROTOCOL): SelectSelector(
                         SelectSelectorConfig(
                             options=auth_options,
-                            mode=SelectSelectorMode.DROPDOWN,
+                            mode="dropdown",
                         )
                     ),
                     vol.Optional(CONF_AUTH_PASSWORD): TextSelector(
@@ -183,7 +182,7 @@ class ApcUpsSnmpConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional(CONF_PRIV_PROTOCOL): SelectSelector(
                         SelectSelectorConfig(
                             options=priv_options,
-                            mode=SelectSelectorMode.DROPDOWN,
+                            mode="dropdown",
                         )
                     ),
                     vol.Optional(CONF_PRIV_PASSWORD): TextSelector(
