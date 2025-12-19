@@ -39,6 +39,7 @@
     "error": {
       "cannot_connect": "Unable to connect to the UPS. Check the host and port.",
       "invalid_auth": "Authentication failed. Check your credentials.",
+      "invalid_host": "Invalid host. Enter a valid IP address or hostname.",
       "timeout": "Connection timed out. The UPS may be unreachable.",
       "unknown": "An unexpected error occurred."
     },

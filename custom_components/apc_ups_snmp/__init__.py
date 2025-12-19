@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .coordinator import ApcUpsCoordinator
+from .snmp_client import shutdown_executor
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,6 +69,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         coordinator: ApcUpsCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.close()
+
+        # If this was the last entry, shutdown the executor
+        if not hass.data[DOMAIN]:
+            _LOGGER.debug("Last APC UPS entry unloaded, shutting down SNMP executor")
+            shutdown_executor()
+            hass.data.pop(DOMAIN)
 
     return unload_ok
 

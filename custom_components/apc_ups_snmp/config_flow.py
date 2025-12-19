@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import ipaddress
 import logging
+import re
 from typing import Any
 
 import voluptuous as vol
@@ -42,6 +44,35 @@ from .snmp_client import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+# Regex for validating hostnames (RFC 1123)
+_HOSTNAME_REGEX = re.compile(
+    r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(?:\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*$"
+)
+
+
+def _validate_host(host: str) -> bool:
+    """Validate host is a valid IP address or hostname.
+
+    Args:
+        host: The host string to validate.
+
+    Returns:
+        True if valid, False otherwise.
+    """
+    if not host or len(host) > 253:
+        return False
+
+    # Try parsing as IP address first
+    try:
+        ipaddress.ip_address(host)
+        return True
+    except ValueError:
+        pass
+
+    # Check if valid hostname
+    return bool(_HOSTNAME_REGEX.match(host))
+
 
 # Available sensors for selection
 AVAILABLE_SENSORS = {
@@ -84,12 +115,18 @@ class ApcUpsSnmpConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            self._data.update(user_input)
-
-            if user_input[CONF_SNMP_VERSION] == SNMP_VERSION_2C:
-                return await self.async_step_auth_v2c()
+            # Validate host input
+            host = user_input.get(CONF_HOST, "").strip()
+            if not _validate_host(host):
+                errors[CONF_HOST] = "invalid_host"
             else:
-                return await self.async_step_auth_v3()
+                user_input[CONF_HOST] = host  # Use trimmed value
+                self._data.update(user_input)
+
+                if user_input[CONF_SNMP_VERSION] == SNMP_VERSION_2C:
+                    return await self.async_step_auth_v2c()
+                else:
+                    return await self.async_step_auth_v3()
 
         return self.async_show_form(
             step_id="user",

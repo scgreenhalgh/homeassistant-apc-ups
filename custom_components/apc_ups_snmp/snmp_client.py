@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import atexit
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
@@ -52,7 +53,32 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # Thread pool executor for running SNMP operations
-_EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="snmp_")
+# Limited to 4 workers to prevent resource exhaustion
+_EXECUTOR: ThreadPoolExecutor | None = None
+
+
+def _get_executor() -> ThreadPoolExecutor:
+    """Get or create the thread pool executor."""
+    global _EXECUTOR
+    if _EXECUTOR is None:
+        _EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="snmp_")
+    return _EXECUTOR
+
+
+def shutdown_executor() -> None:
+    """Shutdown the thread pool executor.
+
+    Called automatically at interpreter exit or can be called manually
+    when the integration is unloaded.
+    """
+    global _EXECUTOR
+    if _EXECUTOR is not None:
+        _EXECUTOR.shutdown(wait=False)
+        _EXECUTOR = None
+
+
+# Register cleanup at interpreter exit
+atexit.register(shutdown_executor)
 
 
 class SnmpError(Exception):
@@ -201,9 +227,13 @@ class ApcSnmpClient:
                     error_msg = error_status.prettyPrint()
                     if "authorization" in error_msg.lower() or "auth" in error_msg.lower():
                         raise SnmpAuthError(f"Authentication failed - check community string: {error_msg}")
+                    # Safely get the OID that caused the error
+                    error_oid = "?"
+                    if error_index and var_binds and int(error_index) <= len(var_binds):
+                        error_oid = str(var_binds[int(error_index) - 1][0])
                     _LOGGER.warning(
                         "SNMP error at %s: %s",
-                        error_index and var_binds[int(error_index) - 1][0] or "?",
+                        error_oid,
                         error_msg,
                     )
                     return None
@@ -224,8 +254,8 @@ class ApcSnmpClient:
                 raise SnmpConnectionError(f"Unable to connect to {self.host}:{self.port}: {err}") from err
 
         # Run the SNMP operation in a thread with its own event loop
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(_EXECUTOR, self._run_snmp_in_thread(do_snmp))
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(_get_executor(), self._run_snmp_in_thread(do_snmp))
 
     async def _async_execute_get_multiple(self, oids: list[str]) -> dict[str, Any]:
         """Execute multiple SNMP GET requests in a single operation.
@@ -263,9 +293,13 @@ class ApcSnmpClient:
                     raise SnmpConnectionError(f"Unable to connect to {self.host}:{self.port}: {error_str}")
 
                 if error_status:
+                    # Safely get the OID that caused the error
+                    error_oid = "?"
+                    if error_index and var_binds and int(error_index) <= len(var_binds):
+                        error_oid = str(var_binds[int(error_index) - 1][0])
                     _LOGGER.warning(
                         "SNMP error at %s: %s",
-                        error_index and var_binds[int(error_index) - 1][0] or "?",
+                        error_oid,
                         error_status.prettyPrint(),
                     )
 
@@ -285,8 +319,8 @@ class ApcSnmpClient:
                 raise SnmpConnectionError(f"Unable to connect to {self.host}:{self.port}: {err}") from err
 
         # Run the SNMP operation in a thread with its own event loop
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(_EXECUTOR, self._run_snmp_in_thread(do_snmp))
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(_get_executor(), self._run_snmp_in_thread(do_snmp))
 
     def _parse_value(self, value: Any) -> Any:
         """Parse an SNMP value to a Python type."""
