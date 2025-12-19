@@ -38,7 +38,7 @@ class TestSnmpClientV2c:
     ) -> None:
         """Test successful SNMP v2c connection."""
         with patch.object(
-            client_v2c, "_execute_get", new_callable=AsyncMock
+            client_v2c, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = mock_snmp_response[
                 ".1.3.6.1.4.1.318.1.1.1.1.1.1.0"
@@ -49,7 +49,7 @@ class TestSnmpClientV2c:
     async def test_connection_timeout_v2c(self, client_v2c: ApcSnmpClient) -> None:
         """Test SNMP v2c connection timeout handling."""
         with patch.object(
-            client_v2c, "_execute_get", new_callable=AsyncMock
+            client_v2c, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpTimeoutError("Connection timed out")
             with pytest.raises(SnmpTimeoutError):
@@ -60,7 +60,7 @@ class TestSnmpClientV2c:
     ) -> None:
         """Test SNMP v2c authentication failure (wrong community string)."""
         with patch.object(
-            client_v2c, "_execute_get", new_callable=AsyncMock
+            client_v2c, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpAuthError("Authentication failed")
             with pytest.raises(SnmpAuthError):
@@ -72,7 +72,7 @@ class TestSnmpClientV2c:
         """Test getting a single OID value."""
         oid = ".1.3.6.1.4.1.318.1.1.1.2.2.1.0"  # Battery capacity
         with patch.object(
-            client_v2c, "_execute_get", new_callable=AsyncMock
+            client_v2c, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = mock_snmp_response[oid]
             result = await client_v2c.async_get(oid)
@@ -87,7 +87,7 @@ class TestSnmpClientV2c:
             ".1.3.6.1.4.1.318.1.1.1.4.2.3.0",  # Output load
         ]
         with patch.object(
-            client_v2c, "_execute_get_multiple", new_callable=AsyncMock
+            client_v2c, "_async_execute_get_multiple", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = {
                 oids[0]: mock_snmp_response[oids[0]],
@@ -100,7 +100,7 @@ class TestSnmpClientV2c:
     async def test_unreachable_host_v2c(self, client_v2c: ApcSnmpClient) -> None:
         """Test handling unreachable host."""
         with patch.object(
-            client_v2c, "_execute_get", new_callable=AsyncMock
+            client_v2c, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpConnectionError("Host unreachable")
             with pytest.raises(SnmpConnectionError):
@@ -138,7 +138,7 @@ class TestSnmpClientV3:
     ) -> None:
         """Test successful SNMP v3 connection."""
         with patch.object(
-            client_v3, "_execute_get", new_callable=AsyncMock
+            client_v3, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = mock_snmp_response[
                 ".1.3.6.1.4.1.318.1.1.1.1.1.1.0"
@@ -149,7 +149,7 @@ class TestSnmpClientV3:
     async def test_connection_auth_failure_v3(self, client_v3: ApcSnmpClient) -> None:
         """Test SNMP v3 authentication failure."""
         with patch.object(
-            client_v3, "_execute_get", new_callable=AsyncMock
+            client_v3, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpAuthError("Authentication failed")
             with pytest.raises(SnmpAuthError):
@@ -161,7 +161,7 @@ class TestSnmpClientV3:
         """Test getting a single OID value with SNMP v3."""
         oid = ".1.3.6.1.4.1.318.1.1.1.2.2.1.0"  # Battery capacity
         with patch.object(
-            client_v3, "_execute_get", new_callable=AsyncMock
+            client_v3, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = mock_snmp_response[oid]
             result = await client_v3.async_get(oid)
@@ -214,7 +214,7 @@ class TestSnmpClientDataParsing:
     async def test_parse_integer_value(self, client: ApcSnmpClient) -> None:
         """Test parsing integer SNMP values."""
         with patch.object(
-            client, "_execute_get", new_callable=AsyncMock
+            client, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = 100
             result = await client.async_get(".1.3.6.1.4.1.318.1.1.1.2.2.1.0")
@@ -224,7 +224,7 @@ class TestSnmpClientDataParsing:
     async def test_parse_string_value(self, client: ApcSnmpClient) -> None:
         """Test parsing string SNMP values."""
         with patch.object(
-            client, "_execute_get", new_callable=AsyncMock
+            client, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = "Smart-UPS 1500"
             result = await client.async_get(".1.3.6.1.4.1.318.1.1.1.1.1.1.0")
@@ -242,7 +242,7 @@ class TestSnmpClientDataParsing:
             ".1.3.6.1.4.1.318.1.1.1.1.2.2.0",  # Serial
         ]
         with patch.object(
-            client, "_execute_get_multiple", new_callable=AsyncMock
+            client, "_async_execute_get_multiple", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = {
                 oid: mock_snmp_response[oid] for oid in identity_oids
@@ -270,7 +270,7 @@ class TestSnmpClientErrorHandling:
     async def test_timeout_error_message(self, client: ApcSnmpClient) -> None:
         """Test timeout error contains helpful message."""
         with patch.object(
-            client, "_execute_get", new_callable=AsyncMock
+            client, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpTimeoutError(
                 "Request timed out after 5 seconds"
@@ -282,7 +282,7 @@ class TestSnmpClientErrorHandling:
     async def test_connection_error_message(self, client: ApcSnmpClient) -> None:
         """Test connection error contains helpful message."""
         with patch.object(
-            client, "_execute_get", new_callable=AsyncMock
+            client, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpConnectionError(
                 "Unable to connect to 192.168.1.100:161"
@@ -294,7 +294,7 @@ class TestSnmpClientErrorHandling:
     async def test_auth_error_message(self, client: ApcSnmpClient) -> None:
         """Test authentication error contains helpful message."""
         with patch.object(
-            client, "_execute_get", new_callable=AsyncMock
+            client, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.side_effect = SnmpAuthError(
                 "Authentication failed - check community string"
@@ -306,7 +306,7 @@ class TestSnmpClientErrorHandling:
     async def test_no_such_oid_returns_none(self, client: ApcSnmpClient) -> None:
         """Test that requesting a non-existent OID returns None."""
         with patch.object(
-            client, "_execute_get", new_callable=AsyncMock
+            client, "_async_execute_get", new_callable=AsyncMock
         ) as mock_get:
             mock_get.return_value = None
             result = await client.async_get(".1.3.6.1.4.1.318.1.1.1.99.99.99.0")
