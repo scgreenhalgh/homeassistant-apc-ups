@@ -126,7 +126,16 @@ class ApcSnmpClient:
         self.priv_password = priv_password
         self.timeout = timeout
 
-        self._engine = SnmpEngine()
+        self._engine: SnmpEngine | None = None
+
+    async def _get_engine(self) -> SnmpEngine:
+        """Get or create the SNMP engine in an executor to avoid blocking."""
+        if self._engine is None:
+            # SnmpEngine does blocking I/O on init, so run in executor
+            self._engine = await asyncio.get_event_loop().run_in_executor(
+                None, SnmpEngine
+            )
+        return self._engine
 
     def _get_auth_data(self) -> CommunityData | UsmUserData:
         """Get the authentication data based on SNMP version."""
@@ -175,9 +184,10 @@ class ApcSnmpClient:
             SnmpAuthError: If authentication fails.
         """
         try:
+            engine = await self._get_engine()
             transport_target = await self._get_transport_target()
             error_indication, error_status, error_index, var_binds = await get_cmd(
-                self._engine,
+                engine,
                 self._get_auth_data(),
                 transport_target,
                 ContextData(),
@@ -233,11 +243,12 @@ class ApcSnmpClient:
         results: dict[str, Any] = {}
 
         try:
+            engine = await self._get_engine()
             object_types = [ObjectType(ObjectIdentity(oid)) for oid in oids]
             transport_target = await self._get_transport_target()
 
             error_indication, error_status, error_index, var_binds = await get_cmd(
-                self._engine,
+                engine,
                 self._get_auth_data(),
                 transport_target,
                 ContextData(),
