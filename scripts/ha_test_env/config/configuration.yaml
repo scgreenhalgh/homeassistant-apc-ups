@@ -1,0 +1,38 @@
+# Home Assistant Test Configuration
+# This is a minimal config for testing the APC UPS SNMP integration
+
+homeassistant:
+  name: HA Test Instance
+  unit_system: metric
+  time_zone: Australia/Sydney
+  # Skip onboarding for faster setup
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 127.0.0.1
+        - ::1
+        - 192.168.0.0/24
+      allow_bypass_login: true
+    - type: homeassistant
+
+# Enable debug logging for our integration
+logger:
+  default: info
+  logs:
+    custom_components.apc_ups_snmp: debug
+    pysnmp: warning
+
+# Enable the API for automation
+api:
+
+# Basic HTTP config
+http:
+  server_port: 8123
+  # Allow connections from anywhere for testing
+  cors_allowed_origins:
+    - "*"
+
+# Disable some defaults we don't need for testing
+# This speeds up startup
+config:
+frontend:

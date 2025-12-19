@@ -75,3 +75,10 @@ venv.bak/
 *.log
 .secrets/
 credentials.json
+
+# HA test environment runtime files
+scripts/ha_test_env/config/.storage/
+scripts/ha_test_env/config/.HA_VERSION
+scripts/ha_test_env/config/.ha_run.lock
+scripts/ha_test_env/config/home-assistant.log*
+scripts/ha_test_env/config/blueprints/

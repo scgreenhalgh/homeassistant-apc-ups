@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "minor_version": 12,
+  "key": "core.device_registry",
+  "data": {
+    "devices": [
+      {"area_id":null,"config_entries":["01KCTHA23YBZ8YMZKYXKQ99MZ4"],"config_entries_subentries":{"01KCTHA23YBZ8YMZKYXKQ99MZ4":[null]},"configuration_url":"homeassistant://config/backup","connections":[],"created_at":"2025-12-19T05:28:49.536876+00:00","disabled_by":null,"entry_type":"service","hw_version":null,"id":"cdd5106561ef216427c448a0f923cf5d","identifiers":[["backup","backup_manager"]],"labels":[],"manufacturer":"Home Assistant","model":"Home Assistant Backup","model_id":null,"modified_at":"2025-12-19T05:28:49.536899+00:00","name_by_user":null,"name":"Backup","primary_config_entry":"01KCTHA23YBZ8YMZKYXKQ99MZ4","serial_number":null,"sw_version":"2025.12.3","via_device_id":null},
+      {"area_id":null,"config_entries":["01KCTJ9FP5SEMTMHS3Z72FP3PN"],"config_entries_subentries":{"01KCTJ9FP5SEMTMHS3Z72FP3PN":[null]},"configuration_url":null,"connections":[],"created_at":"2025-12-19T05:45:59.512909+00:00","disabled_by":null,"entry_type":null,"hw_version":null,"id":"46127169c5570f7b99d515cee8bfb7c4","identifiers":[["apc_ups_snmp","01KCTJ9FP5SEMTMHS3Z72FP3PN"]],"labels":[],"manufacturer":"APC by Schneider Electric","model":"Smart-UPS 1500","model_id":null,"modified_at":"2025-12-19T05:45:59.512972+00:00","name_by_user":null,"name":"UNO_UPS","primary_config_entry":"01KCTJ9FP5SEMTMHS3Z72FP3PN","serial_number":"10/20/2018","sw_version":"UPS 09.3 (ID18) ","via_device_id":null}
+    ],
+    "deleted_devices": []
+  }
+}

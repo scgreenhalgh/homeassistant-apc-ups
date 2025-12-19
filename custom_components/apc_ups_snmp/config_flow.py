@@ -205,15 +205,24 @@ class ApcUpsSnmpConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data=self._data,
             )
 
+        # Build options for multi-select
+        sensor_options = [
+            SelectOptionDict(value=key, label=label)
+            for key, label in AVAILABLE_SENSORS.items()
+        ]
+
         return self.async_show_form(
             step_id="sensors",
             data_schema=vol.Schema(
                 {
                     vol.Required(
                         CONF_SENSORS, default=DEFAULT_SENSORS
-                    ): vol.All(
-                        vol.Coerce(list),
-                        [vol.In(list(AVAILABLE_SENSORS.keys()))],
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=sensor_options,
+                            multiple=True,
+                            mode="list",
+                        )
                     ),
                 }
             ),
@@ -295,15 +304,24 @@ class ApcUpsSnmpOptionsFlow(config_entries.OptionsFlow):
             CONF_SENSORS, self.config_entry.data.get(CONF_SENSORS, DEFAULT_SENSORS)
         )
 
+        # Build options for multi-select
+        sensor_options = [
+            SelectOptionDict(value=key, label=label)
+            for key, label in AVAILABLE_SENSORS.items()
+        ]
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Required(
                         CONF_SENSORS, default=current_sensors
-                    ): vol.All(
-                        vol.Coerce(list),
-                        [vol.In(list(AVAILABLE_SENSORS.keys()))],
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=sensor_options,
+                            multiple=True,
+                            mode="list",
+                        )
                     ),
                 }
             ),

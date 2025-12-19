@@ -1,0 +1,15 @@
+services:
+  homeassistant:
+    container_name: ha_test
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      # Main config directory
+      - ./config:/config
+      # Mount the custom integration directly
+      - ../../custom_components/apc_ups_snmp:/config/custom_components/apc_ups_snmp:ro
+    environment:
+      - TZ=Australia/Sydney
+    # Use port mapping (host network doesn't work well on macOS Docker)
+    ports:
+      - "8123:8123"
+    restart: unless-stopped
