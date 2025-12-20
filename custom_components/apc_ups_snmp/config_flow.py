@@ -13,6 +13,9 @@ from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -20,6 +23,8 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
     TextSelectorType,
 )
+
+from homeassistant.const import CONF_SCAN_INTERVAL
 
 from .const import (
     AUTH_PROTOCOLS,
@@ -31,7 +36,10 @@ from .const import (
     CONF_SENSORS,
     CONF_SNMP_VERSION,
     DEFAULT_PORT,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    MAX_SCAN_INTERVAL,
+    MIN_SCAN_INTERVAL,
     PRIV_PROTOCOLS,
     SNMP_VERSION_2C,
     SNMP_VERSION_3,
@@ -80,12 +88,15 @@ AVAILABLE_SENSORS = {
     "battery_runtime": "Battery Runtime",
     "battery_temperature": "Battery Temperature",
     "battery_voltage": "Battery Voltage",
+    "time_on_battery": "Time On Battery",
     "input_voltage": "Input Voltage",
     "input_frequency": "Input Frequency",
+    "last_transfer_cause": "Last Transfer Cause",
     "output_voltage": "Output Voltage",
     "output_frequency": "Output Frequency",
     "output_load": "Output Load",
     "output_current": "Output Current",
+    "output_power": "Output Power",
     "ups_status": "UPS Status",
 }
 
@@ -94,6 +105,8 @@ DEFAULT_SENSORS = [
     "battery_capacity",
     "battery_runtime",
     "output_load",
+    "output_power",
+    "last_transfer_cause",
     "ups_status",
 ]
 
@@ -340,6 +353,9 @@ class ApcUpsSnmpOptionsFlow(config_entries.OptionsFlow):
         current_sensors = self.config_entry.options.get(
             CONF_SENSORS, self.config_entry.data.get(CONF_SENSORS, DEFAULT_SENSORS)
         )
+        current_scan_interval = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+        )
 
         # Build options for multi-select
         sensor_options = [
@@ -351,6 +367,17 @@ class ApcUpsSnmpOptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
+                    vol.Required(
+                        CONF_SCAN_INTERVAL, default=current_scan_interval
+                    ): NumberSelector(
+                        NumberSelectorConfig(
+                            min=MIN_SCAN_INTERVAL,
+                            max=MAX_SCAN_INTERVAL,
+                            step=5,
+                            unit_of_measurement="seconds",
+                            mode=NumberSelectorMode.SLIDER,
+                        )
+                    ),
                     vol.Required(
                         CONF_SENSORS, default=current_sensors
                     ): SelectSelector(

@@ -119,15 +119,15 @@ class TestSensors:
             await hass.config_entries.async_setup(mock_config_entry.entry_id)
             await hass.async_block_till_done()
 
-            # Check battery capacity sensor
+            # Check battery capacity sensor (now returns decimal)
             state = hass.states.get("sensor.ups_server_room_battery_capacity")
             assert state is not None
-            assert state.state == "100"
+            assert state.state == "100.0"
 
-            # Check output load sensor
+            # Check output load sensor (now returns decimal)
             state = hass.states.get("sensor.ups_server_room_output_load")
             assert state is not None
-            assert state.state == "25"
+            assert state.state == "25.0"
 
     async def test_sensor_device_info(
         self,
@@ -176,7 +176,7 @@ class TestSensors:
             await hass.config_entries.async_setup(mock_config_entry.entry_id)
             await hass.async_block_till_done()
 
-            # Sensors should be available
+            # Sensors should be available (now returns decimal)
             state = hass.states.get("sensor.ups_server_room_battery_capacity")
             assert state is not None
-            assert state.state == "100"
+            assert state.state == "100.0"

@@ -239,5 +239,5 @@ class TestCoordinator:
                 config_data=mock_config_entry_data,
             )
 
-            # Default update interval should be 60 seconds
-            assert coordinator.update_interval == timedelta(seconds=60)
+            # Default update interval should be 30 seconds
+            assert coordinator.update_interval == timedelta(seconds=30)

@@ -17,6 +17,7 @@ from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfFrequency,
+    UnitOfPower,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -26,6 +27,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import (
     CONF_SENSORS,
     DOMAIN,
+    LAST_TRANSFER_CAUSE_MAP,
     OUTPUT_STATUS_MAP,
     ApcOid,
 )
@@ -53,11 +55,36 @@ def runtime_timeticks_to_minutes(value: int | None) -> float | None:
     return round(seconds / 60, 1)
 
 
+def timeticks_to_seconds(value: int | None) -> float | None:
+    """Convert SNMP timeticks to seconds.
+
+    APC reports time on battery in hundredths of a second (timeticks).
+    """
+    if value is None:
+        return None
+    # Timeticks are 1/100 of a second
+    return round(value / 100, 1)
+
+
 def output_status_to_string(value: int | None) -> str | None:
     """Convert output status code to string."""
     if value is None:
         return None
     return OUTPUT_STATUS_MAP.get(value, "unknown")
+
+
+def last_transfer_cause_to_string(value: int | None) -> str | None:
+    """Convert last transfer cause code to string."""
+    if value is None:
+        return None
+    return LAST_TRANSFER_CAUSE_MAP.get(value, "Unknown")
+
+
+def to_one_decimal(value: int | float | None) -> float | None:
+    """Round value to 1 decimal place."""
+    if value is None:
+        return None
+    return round(float(value), 1)
 
 
 SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
@@ -68,7 +95,9 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.BATTERY,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.BATTERY_CAPACITY,
+        value_fn=to_one_decimal,
     ),
     "battery_runtime": ApcUpsSensorEntityDescription(
         key="battery_runtime",
@@ -77,6 +106,7 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfTime.MINUTES,
         device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.BATTERY_RUNTIME,
         value_fn=runtime_timeticks_to_minutes,
     ),
@@ -87,7 +117,9 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.BATTERY_TEMPERATURE,
+        value_fn=to_one_decimal,
     ),
     "battery_voltage": ApcUpsSensorEntityDescription(
         key="battery_voltage",
@@ -96,7 +128,20 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.BATTERY_VOLTAGE,
+        value_fn=to_one_decimal,
+    ),
+    "time_on_battery": ApcUpsSensorEntityDescription(
+        key="time_on_battery",
+        translation_key="time_on_battery",
+        name="Time On Battery",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        oid=ApcOid.TIME_ON_BATTERY,
+        value_fn=timeticks_to_seconds,
     ),
     "input_voltage": ApcUpsSensorEntityDescription(
         key="input_voltage",
@@ -105,7 +150,9 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.INPUT_VOLTAGE,
+        value_fn=to_one_decimal,
     ),
     "input_frequency": ApcUpsSensorEntityDescription(
         key="input_frequency",
@@ -114,7 +161,18 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfFrequency.HERTZ,
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.INPUT_FREQUENCY,
+        value_fn=to_one_decimal,
+    ),
+    "last_transfer_cause": ApcUpsSensorEntityDescription(
+        key="last_transfer_cause",
+        translation_key="last_transfer_cause",
+        name="Last Transfer Cause",
+        device_class=SensorDeviceClass.ENUM,
+        oid=ApcOid.LAST_TRANSFER_CAUSE,
+        value_fn=last_transfer_cause_to_string,
+        options=list(LAST_TRANSFER_CAUSE_MAP.values()),
     ),
     "output_voltage": ApcUpsSensorEntityDescription(
         key="output_voltage",
@@ -123,7 +181,9 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.OUTPUT_VOLTAGE,
+        value_fn=to_one_decimal,
     ),
     "output_frequency": ApcUpsSensorEntityDescription(
         key="output_frequency",
@@ -132,7 +192,9 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfFrequency.HERTZ,
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.OUTPUT_FREQUENCY,
+        value_fn=to_one_decimal,
     ),
     "output_load": ApcUpsSensorEntityDescription(
         key="output_load",
@@ -141,7 +203,9 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.POWER_FACTOR,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.OUTPUT_LOAD,
+        value_fn=to_one_decimal,
     ),
     "output_current": ApcUpsSensorEntityDescription(
         key="output_current",
@@ -150,7 +214,20 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         oid=ApcOid.OUTPUT_CURRENT,
+        value_fn=to_one_decimal,
+    ),
+    "output_power": ApcUpsSensorEntityDescription(
+        key="output_power",
+        translation_key="output_power",
+        name="Output Power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        oid=ApcOid.OUTPUT_POWER,
+        value_fn=to_one_decimal,
     ),
     "ups_status": ApcUpsSensorEntityDescription(
         key="ups_status",

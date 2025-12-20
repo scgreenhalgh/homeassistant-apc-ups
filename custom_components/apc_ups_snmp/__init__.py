@@ -5,10 +5,10 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
 from .coordinator import ApcUpsCoordinator
 from .snmp_client import shutdown_executor
 
@@ -29,10 +29,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """
     _LOGGER.debug("Setting up APC UPS SNMP integration: %s", entry.title)
 
+    # Get scan interval from options, falling back to default
+    scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+
     # Create coordinator
     coordinator = ApcUpsCoordinator(
         hass=hass,
         config_data=entry.data,
+        update_interval=int(scan_interval),
     )
 
     # Fetch initial data

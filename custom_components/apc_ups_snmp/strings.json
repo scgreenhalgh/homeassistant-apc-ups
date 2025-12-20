@@ -51,10 +51,57 @@
     "step": {
       "init": {
         "title": "APC UPS Options",
-        "description": "Configure which sensors to enable.",
+        "description": "Configure polling interval and sensors.",
         "data": {
+          "scan_interval": "Polling Interval",
           "sensors": "Sensors"
         }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_capacity": {
+        "name": "Battery Capacity"
+      },
+      "battery_runtime": {
+        "name": "Battery Runtime"
+      },
+      "battery_temperature": {
+        "name": "Battery Temperature"
+      },
+      "battery_voltage": {
+        "name": "Battery Voltage"
+      },
+      "time_on_battery": {
+        "name": "Time On Battery"
+      },
+      "input_voltage": {
+        "name": "Input Voltage"
+      },
+      "input_frequency": {
+        "name": "Input Frequency"
+      },
+      "last_transfer_cause": {
+        "name": "Last Transfer Cause"
+      },
+      "output_voltage": {
+        "name": "Output Voltage"
+      },
+      "output_frequency": {
+        "name": "Output Frequency"
+      },
+      "output_load": {
+        "name": "Output Load"
+      },
+      "output_current": {
+        "name": "Output Current"
+      },
+      "output_power": {
+        "name": "Output Power"
+      },
+      "ups_status": {
+        "name": "UPS Status"
       }
     }
   }

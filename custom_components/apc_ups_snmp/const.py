@@ -4,7 +4,9 @@ from typing import Final
 
 DOMAIN: Final = "apc_ups_snmp"
 DEFAULT_PORT: Final = 161
-DEFAULT_SCAN_INTERVAL: Final = 60  # seconds
+DEFAULT_SCAN_INTERVAL: Final = 30  # seconds
+MIN_SCAN_INTERVAL: Final = 10  # seconds
+MAX_SCAN_INTERVAL: Final = 300  # seconds (5 minutes)
 DEFAULT_TIMEOUT: Final = 5  # seconds
 
 # SNMP versions
@@ -65,6 +67,7 @@ class ApcOid:
 
     # Battery OIDs
     BATTERY_STATUS: Final = ".1.3.6.1.4.1.318.1.1.1.2.1.1.0"
+    TIME_ON_BATTERY: Final = ".1.3.6.1.4.1.318.1.1.1.2.1.2.0"
     BATTERY_CAPACITY: Final = ".1.3.6.1.4.1.318.1.1.1.2.2.1.0"
     BATTERY_TEMPERATURE: Final = ".1.3.6.1.4.1.318.1.1.1.2.2.2.0"
     BATTERY_RUNTIME: Final = ".1.3.6.1.4.1.318.1.1.1.2.2.3.0"
@@ -79,6 +82,7 @@ class ApcOid:
     INPUT_MAX_VOLTAGE: Final = ".1.3.6.1.4.1.318.1.1.1.3.2.2.0"
     INPUT_MIN_VOLTAGE: Final = ".1.3.6.1.4.1.318.1.1.1.3.2.3.0"
     INPUT_FREQUENCY: Final = ".1.3.6.1.4.1.318.1.1.1.3.2.4.0"
+    LAST_TRANSFER_CAUSE: Final = ".1.3.6.1.4.1.318.1.1.1.3.2.5.0"
     INPUT_SENSITIVITY: Final = ".1.3.6.1.4.1.318.1.1.1.5.2.7.0"
 
     # Output OIDs
@@ -109,13 +113,16 @@ class ApcOid:
             cls.BATTERY_TEMPERATURE,
             cls.BATTERY_RUNTIME,
             cls.BATTERY_VOLTAGE,
+            cls.TIME_ON_BATTERY,
             cls.INPUT_VOLTAGE,
             cls.INPUT_FREQUENCY,
+            cls.LAST_TRANSFER_CAUSE,
             cls.OUTPUT_STATUS,
             cls.OUTPUT_VOLTAGE,
             cls.OUTPUT_FREQUENCY,
             cls.OUTPUT_LOAD,
             cls.OUTPUT_CURRENT,
+            cls.OUTPUT_POWER,
         ]
 
     @classmethod
@@ -189,4 +196,29 @@ SELF_TEST_RESULT_MAP: Final = {
     SELF_TEST_FAILED: "failed",
     SELF_TEST_INVALID: "invalid",
     SELF_TEST_IN_PROGRESS: "in_progress",
+}
+
+# Last transfer cause values
+TRANSFER_NO_TRANSFER: Final = 1
+TRANSFER_HIGH_LINE_VOLTAGE: Final = 2
+TRANSFER_BROWNOUT: Final = 3
+TRANSFER_BLACKOUT: Final = 4
+TRANSFER_SMALL_SAG: Final = 5
+TRANSFER_DEEP_SAG: Final = 6
+TRANSFER_SMALL_SPIKE: Final = 7
+TRANSFER_LARGE_SPIKE: Final = 8
+TRANSFER_SELF_TEST: Final = 9
+TRANSFER_RATE_OF_CHANGE: Final = 10
+
+LAST_TRANSFER_CAUSE_MAP: Final = {
+    TRANSFER_NO_TRANSFER: "No Transfer",
+    TRANSFER_HIGH_LINE_VOLTAGE: "High Line Voltage",
+    TRANSFER_BROWNOUT: "Brownout",
+    TRANSFER_BLACKOUT: "Blackout",
+    TRANSFER_SMALL_SAG: "Small Momentary Sag",
+    TRANSFER_DEEP_SAG: "Deep Momentary Sag",
+    TRANSFER_SMALL_SPIKE: "Small Momentary Spike",
+    TRANSFER_LARGE_SPIKE: "Large Momentary Spike",
+    TRANSFER_SELF_TEST: "Self Test",
+    TRANSFER_RATE_OF_CHANGE: "Rate of Voltage Change",
 }
