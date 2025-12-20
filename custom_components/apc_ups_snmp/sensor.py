@@ -81,10 +81,16 @@ def last_transfer_cause_to_string(value: int | None) -> str | None:
 
 
 def to_one_decimal(value: int | float | None) -> float | None:
-    """Round value to 1 decimal place."""
+    """Round value to 1 decimal place.
+
+    Always returns a float to ensure decimal display (e.g., 100.0 not 100).
+    """
     if value is None:
         return None
-    return round(float(value), 1)
+    # Ensure we always return a float, not int
+    result = round(float(value), 1)
+    # Force float type even for whole numbers
+    return float(result)
 
 
 SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
