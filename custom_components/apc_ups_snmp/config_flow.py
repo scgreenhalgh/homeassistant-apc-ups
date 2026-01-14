@@ -97,6 +97,8 @@ AVAILABLE_SENSORS = {
     "output_load": "Output Load",
     "output_current": "Output Current",
     "output_power": "Output Power",
+    "output_efficiency": "Output Efficiency",
+    "output_energy": "Output Energy",
     "ups_status": "UPS Status",
 }
 
