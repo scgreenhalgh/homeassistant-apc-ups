@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -41,7 +42,7 @@ class ApcUpsSensorEntityDescription(SensorEntityDescription):
     """Describes an APC UPS sensor entity."""
 
     oid: str | None = None
-    value_fn: Any | None = None
+    value_fn: Callable[[int | float | None], float | str | None] | None = None
 
 
 def runtime_timeticks_to_minutes(value: int | None) -> float | None:
@@ -228,7 +229,6 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         translation_key="output_load",
         name="Output Load",
         native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.POWER_FACTOR,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
         oid=ApcOid.OUTPUT_LOAD_HIGH_PREC,

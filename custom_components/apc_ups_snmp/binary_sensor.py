@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -30,7 +31,7 @@ class ApcUpsBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Describes an APC UPS binary sensor entity."""
 
     oid: str | None = None
-    is_on_fn: Any | None = None
+    is_on_fn: Callable[[dict[str, Any]], bool | None] | None = None
 
 
 def is_on_battery(data: dict[str, Any]) -> bool | None:

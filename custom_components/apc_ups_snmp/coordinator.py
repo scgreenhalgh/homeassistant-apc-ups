@@ -92,7 +92,7 @@ class ApcUpsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """
         try:
             data = await self._client.async_get_all_data()
-            _LOGGER.debug("Fetched UPS data: %s", data)
+            _LOGGER.debug("Fetched %d OID values from UPS", len(data))
             return data
 
         except SnmpAuthError as err:

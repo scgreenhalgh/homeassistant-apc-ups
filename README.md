@@ -158,6 +158,20 @@ Or use GitHub Actions (automated on tag push).
 |--------|-----|--------|
 | Smart-UPS 1500 | AP9630 | Working |
 
+## Security Considerations
+
+### SNMP Version Selection
+
+This integration supports both SNMP v2c and SNMP v3:
+
+- **SNMP v2c**: The community string is transmitted in **cleartext** over the network. This is acceptable for isolated/trusted networks but should be avoided if traffic crosses untrusted network segments.
+
+- **SNMP v3** (Recommended): Provides authentication and optional encryption. Use SHA256 or higher for authentication and AES for privacy when security is important.
+
+### Credential Storage
+
+SNMP credentials are stored in Home Assistant's configuration database, which is encrypted at rest. Credentials are never logged.
+
 ## License
 
 MIT License
