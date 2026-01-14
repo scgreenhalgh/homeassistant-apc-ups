@@ -93,6 +93,15 @@ class ApcOid:
     OUTPUT_CURRENT: Final = ".1.3.6.1.4.1.318.1.1.1.4.2.4.0"
     OUTPUT_POWER: Final = ".1.3.6.1.4.1.318.1.1.1.4.2.8.0"
 
+    # High-precision Output OIDs (values in tenths)
+    # These provide better resolution than standard OIDs
+    OUTPUT_VOLTAGE_HIGH_PREC: Final = ".1.3.6.1.4.1.318.1.1.1.4.3.1.0"
+    OUTPUT_FREQUENCY_HIGH_PREC: Final = ".1.3.6.1.4.1.318.1.1.1.4.3.2.0"
+    OUTPUT_LOAD_HIGH_PREC: Final = ".1.3.6.1.4.1.318.1.1.1.4.3.3.0"
+    OUTPUT_CURRENT_HIGH_PREC: Final = ".1.3.6.1.4.1.318.1.1.1.4.3.4.0"
+    OUTPUT_EFFICIENCY_HIGH_PREC: Final = ".1.3.6.1.4.1.318.1.1.1.4.3.5.0"
+    OUTPUT_ENERGY_HIGH_PREC: Final = ".1.3.6.1.4.1.318.1.1.1.4.3.6.0"
+
     # Self-test OIDs
     SELF_TEST_RESULT: Final = ".1.3.6.1.4.1.318.1.1.1.7.2.3.0"
     SELF_TEST_DATE: Final = ".1.3.6.1.4.1.318.1.1.1.7.2.4.0"
@@ -118,10 +127,12 @@ class ApcOid:
             cls.INPUT_FREQUENCY,
             cls.LAST_TRANSFER_CAUSE,
             cls.OUTPUT_STATUS,
-            cls.OUTPUT_VOLTAGE,
-            cls.OUTPUT_FREQUENCY,
-            cls.OUTPUT_LOAD,
-            cls.OUTPUT_CURRENT,
+            cls.OUTPUT_VOLTAGE_HIGH_PREC,
+            cls.OUTPUT_FREQUENCY_HIGH_PREC,
+            cls.OUTPUT_LOAD_HIGH_PREC,
+            cls.OUTPUT_CURRENT_HIGH_PREC,
+            cls.OUTPUT_EFFICIENCY_HIGH_PREC,
+            cls.OUTPUT_ENERGY_HIGH_PREC,
             cls.OUTPUT_POWER,
         ]
 

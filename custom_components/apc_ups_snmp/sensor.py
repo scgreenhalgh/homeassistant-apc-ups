@@ -16,6 +16,7 @@ from homeassistant.const import (
     PERCENTAGE,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
+    UnitOfEnergy,
     UnitOfFrequency,
     UnitOfPower,
     UnitOfTemperature,
@@ -91,6 +92,26 @@ def to_one_decimal(value: int | float | None) -> float | None:
     result = round(float(value), 1)
     # Force float type even for whole numbers
     return float(result)
+
+
+def tenths_to_amps(value: int | float | None) -> float | None:
+    """Convert tenths of amperes to amperes with 1 decimal place.
+
+    The high-precision OID returns current in tenths of amperes (e.g., 14 = 1.4A).
+    """
+    if value is None:
+        return None
+    return round(float(value) / 10.0, 1)
+
+
+def tenths_to_value(value: int | float | None) -> float | None:
+    """Convert tenths to actual value with 1 decimal place.
+
+    High-precision OIDs return values in tenths (e.g., 2203 = 220.3V).
+    """
+    if value is None:
+        return None
+    return round(float(value) / 10.0, 1)
 
 
 SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
@@ -188,8 +209,8 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
-        oid=ApcOid.OUTPUT_VOLTAGE,
-        value_fn=to_one_decimal,
+        oid=ApcOid.OUTPUT_VOLTAGE_HIGH_PREC,
+        value_fn=tenths_to_value,
     ),
     "output_frequency": ApcUpsSensorEntityDescription(
         key="output_frequency",
@@ -199,8 +220,8 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
-        oid=ApcOid.OUTPUT_FREQUENCY,
-        value_fn=to_one_decimal,
+        oid=ApcOid.OUTPUT_FREQUENCY_HIGH_PREC,
+        value_fn=tenths_to_value,
     ),
     "output_load": ApcUpsSensorEntityDescription(
         key="output_load",
@@ -210,8 +231,8 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         device_class=SensorDeviceClass.POWER_FACTOR,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
-        oid=ApcOid.OUTPUT_LOAD,
-        value_fn=to_one_decimal,
+        oid=ApcOid.OUTPUT_LOAD_HIGH_PREC,
+        value_fn=tenths_to_value,
     ),
     "output_current": ApcUpsSensorEntityDescription(
         key="output_current",
@@ -221,8 +242,8 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
-        oid=ApcOid.OUTPUT_CURRENT,
-        value_fn=to_one_decimal,
+        oid=ApcOid.OUTPUT_CURRENT_HIGH_PREC,
+        value_fn=tenths_to_amps,
     ),
     "output_power": ApcUpsSensorEntityDescription(
         key="output_power",
@@ -234,6 +255,27 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         suggested_display_precision=1,
         oid=ApcOid.OUTPUT_POWER,
         value_fn=to_one_decimal,
+    ),
+    "output_efficiency": ApcUpsSensorEntityDescription(
+        key="output_efficiency",
+        translation_key="output_efficiency",
+        name="Output Efficiency",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        oid=ApcOid.OUTPUT_EFFICIENCY_HIGH_PREC,
+        value_fn=tenths_to_value,
+    ),
+    "output_energy": ApcUpsSensorEntityDescription(
+        key="output_energy",
+        translation_key="output_energy",
+        name="Output Energy",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        suggested_display_precision=1,
+        oid=ApcOid.OUTPUT_ENERGY_HIGH_PREC,
+        value_fn=tenths_to_value,
     ),
     "ups_status": ApcUpsSensorEntityDescription(
         key="ups_status",
