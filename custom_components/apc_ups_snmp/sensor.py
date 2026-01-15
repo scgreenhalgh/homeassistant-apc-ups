@@ -37,12 +37,18 @@ from .coordinator import ApcUpsCoordinator
 from .entity import ApcUpsEntity
 
 
+# Default power factor for estimating power when OUTPUT_POWER OID unavailable.
+# Typical range is 0.7-0.95 depending on load type. Using 0.85 as a balanced default.
+DEFAULT_POWER_FACTOR = 0.85
+
+
 @dataclass(frozen=True)
 class ApcUpsSensorEntityDescription(SensorEntityDescription):
     """Describes an APC UPS sensor entity."""
 
     oid: str | None = None
     value_fn: Callable[[int | float | None], float | str | None] | None = None
+    fallback_fn: Callable[[dict[str, Any]], float | None] | None = None
 
 
 def runtime_timeticks_to_minutes(value: int | None) -> float | None:
@@ -113,6 +119,30 @@ def tenths_to_value(value: int | float | None) -> float | None:
     if value is None:
         return None
     return round(float(value) / 10.0, 1)
+
+
+def calculate_output_power(data: dict[str, Any]) -> float | None:
+    """Calculate output power from voltage and current when OUTPUT_POWER OID unavailable.
+
+    Uses: Power (W) = Voltage (V) × Current (A) × Power Factor
+
+    The high-precision OIDs return values in tenths, so we divide by 10.
+    Power factor of 0.9 is typical for computer/server loads on APC UPS units.
+    """
+    voltage_raw = data.get(ApcOid.OUTPUT_VOLTAGE_HIGH_PREC)
+    current_raw = data.get(ApcOid.OUTPUT_CURRENT_HIGH_PREC)
+
+    if voltage_raw is None or current_raw is None:
+        return None
+
+    # Convert from tenths to actual values
+    voltage = float(voltage_raw) / 10.0
+    current = float(current_raw) / 10.0
+
+    # Calculate real power using power factor
+    power = voltage * current * DEFAULT_POWER_FACTOR
+
+    return round(power, 1)
 
 
 SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
@@ -255,6 +285,7 @@ SENSOR_DESCRIPTIONS: dict[str, ApcUpsSensorEntityDescription] = {
         suggested_display_precision=1,
         oid=ApcOid.OUTPUT_POWER,
         value_fn=to_one_decimal,
+        fallback_fn=calculate_output_power,
     ),
     "output_efficiency": ApcUpsSensorEntityDescription(
         key="output_efficiency",
@@ -358,5 +389,9 @@ class ApcUpsSensor(ApcUpsEntity, SensorEntity):
         # Apply value transformation if defined
         if self.entity_description.value_fn is not None:
             value = self.entity_description.value_fn(value)
+
+        # If value is still None and we have a fallback function, use it
+        if value is None and self.entity_description.fallback_fn is not None:
+            value = self.entity_description.fallback_fn(self.coordinator.data)
 
         return value
