@@ -242,7 +242,7 @@ class ApcSnmpClient:
                     _, value = var_binds[0]
                     if hasattr(value, "prettyPrint"):
                         pretty_value = value.prettyPrint()
-                        if "noSuch" in pretty_value:
+                        if "no such" in pretty_value.lower():
                             return None
                     return self._parse_value(value)
 
@@ -330,7 +330,8 @@ class ApcSnmpClient:
         # Check for noSuchObject or noSuchInstance
         if hasattr(value, "prettyPrint"):
             pretty_value = value.prettyPrint()
-            if "noSuch" in pretty_value:
+            # Case-insensitive check for "no such" (handles "noSuchObject", "No Such Object", etc.)
+            if "no such" in pretty_value.lower():
                 return None
 
         # Try to get the Python value
