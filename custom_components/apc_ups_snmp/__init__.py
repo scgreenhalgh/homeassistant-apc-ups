@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import CONF_SNMP_VERSION, DEFAULT_SCAN_INTERVAL, DOMAIN, SNMP_VERSION_2C
 from .coordinator import ApcUpsCoordinator
 from .snmp_client import shutdown_executor
 
@@ -28,6 +28,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         True if setup was successful.
     """
     _LOGGER.debug("Setting up APC UPS SNMP integration: %s", entry.title)
+
+    # Warn about SNMP v2c security implications
+    if entry.data.get(CONF_SNMP_VERSION) == SNMP_VERSION_2C:
+        _LOGGER.warning(
+            "APC UPS '%s' is using SNMP v2c which transmits credentials in plaintext. "
+            "Consider reconfiguring with SNMP v3 for better security",
+            entry.title,
+        )
 
     # Get scan interval from options, falling back to default
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)

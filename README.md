@@ -164,13 +164,47 @@ Or use GitHub Actions (automated on tag push).
 
 This integration supports both SNMP v2c and SNMP v3:
 
-- **SNMP v2c**: The community string is transmitted in **cleartext** over the network. This is acceptable for isolated/trusted networks but should be avoided if traffic crosses untrusted network segments.
+| Version | Security | Recommendation |
+|---------|----------|----------------|
+| **v2c** | Community string in **cleartext** | Isolated networks only |
+| **v3** | Authentication + encryption | **Recommended** |
 
-- **SNMP v3** (Recommended): Provides authentication and optional encryption. Use SHA256 or higher for authentication and AES for privacy when security is important.
+#### SNMP v2c Security Warning
+
+When using SNMP v2c, the integration will:
+- Display a security warning during setup
+- Log a warning at each startup
+
+This is intentional to remind users that v2c credentials can be captured by anyone with network access.
+
+#### SNMP v3 Best Practices
+
+For maximum security with SNMP v3:
+
+1. **Authentication Protocol**: Use SHA256 or higher (avoid MD5/SHA1)
+2. **Privacy Protocol**: Use AES256 (avoid DES/3DES)
+3. **Password Strength**: Use strong, unique passwords for both auth and priv
+4. **Network Segmentation**: Keep UPS management traffic on a dedicated VLAN if possible
+
+Example secure configuration:
+```
+Username: homeassistant
+Auth Protocol: SHA256
+Auth Password: <strong unique password>
+Priv Protocol: AES256
+Priv Password: <different strong unique password>
+```
 
 ### Credential Storage
 
 SNMP credentials are stored in Home Assistant's configuration database, which is encrypted at rest. Credentials are never logged.
+
+### Input Validation
+
+All user inputs are validated:
+- **Host**: Must be a valid IP address or RFC 1123 compliant hostname
+- **Port**: Bounded integer (1-65535)
+- **Protocols**: Selected from predefined lists (no arbitrary input)
 
 ## License
 

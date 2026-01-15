@@ -12,7 +12,7 @@
       },
       "auth_v2c": {
         "title": "SNMP v2c Authentication",
-        "description": "Enter the community string for SNMP v2c authentication.",
+        "description": "**Security Warning:** SNMP v2c transmits the community string in plaintext. Consider using SNMP v3 with authentication and encryption for better security.\n\nEnter the community string for SNMP v2c authentication.",
         "data": {
           "community": "Community String"
         }
